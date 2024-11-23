@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raspberry Pi Resource Monitor</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #000000; /* Default background */
+            color: white; /* Set text color to white */
+        }
+        .resource-container {
+            display: grid;
+            grid-template-columns: repeat(2, 300px);
+            grid-gap: 40px;
+            margin-bottom: 40px;
+            justify-content: center;
+        }
+        .resource {
+            width: 300px;
+            height: 300px;
+        }
+        .values {
+            text-align: center;
+            color: white; /* Set text color to white */
+        }
+        h2 {
+            margin: 10px 0;
+            color: white; /* Ensure h2 text is white */
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: white; /* Ensure h1 text is white */
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body onload="fetchResources()">
+    <h1>Raspberry Pi Resource Monitor</h1>
+
+    <div class="resource-container">
+        <div>
+            <canvas id="cpuChart" class="resource"></canvas>
+            <h2 id="cpu-usage">CPU Usage: Loading...</h2>
+        </div>
+        <div>
+            <canvas id="memoryChart" class="resource"></canvas>
+            <h2 id="memory-usage">Memory Usage: Loading...</h2>
+        </div>
+        <div>
+            <canvas id="tempChart" class="resource"></canvas>
+            <h2 id="temperature">Temperature: Loading...</h2>
+        </div>
+        <div>
+            <canvas id="storageChart" class="resource"></canvas>
+            <h2 id="storage-usage">Storage Usage: Loading...</h2>
+        </div>
+    </div>
+
+    <script>
+        const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+        const memoryCtx = document.getElementById('memoryChart').getContext('2d');
+        const tempCtx = document.getElementById('tempChart').getContext('2d');
+        const storageCtx = document.getElementById('storageChart').getContext('2d');
+
+        const cpuChart = new Chart(cpuCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Used', 'Free'],
+                datasets: [{
+                    data: [0, 100],
+                    backgroundColor: ['#ff6384', '#36a2eb'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                cutoutPercentage: 70,
+                animation: {
+                    animateRotate: true,
+                }
+            }
+        });
+
+        const memoryChart = new Chart(memoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Used', 'Free'],
+                datasets: [{
+                    data: [0, 100],
+                    backgroundColor: ['#ffce56', '#36a2eb'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                cutoutPercentage: 70,
+                animation: {
+                    animateRotate: true,
+                }
+            }
+        });
+
+        const tempChart = new Chart(tempCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Current Temp', 'Max Temp'],
+                datasets: [{
+                    data: [0, 100],
+                    backgroundColor: ['#4bc0c0', '#36a2eb'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                cutoutPercentage: 70,
+                animation: {
+                    animateRotate: true,
+                }
+            }
+        });
+
+        const storageChart = new Chart(storageCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Used', 'Free'],
+                datasets: [{
+                    data: [0, 100],
+                    backgroundColor: ['#36a2eb', '#ff6384'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                cutoutPercentage: 70,
+                animation: {
+                    animateRotate: true,
+                }
+            }
+        });
+
+        function fetchResources() {
+            fetch('/resources')
+                .then(response => response.json())
+                .then(data => {
+                    // Update CPU Chart
+                    cpuChart.data.datasets[0].data[0] = data.cpu_usage;
+                    cpuChart.data.datasets[0].data[1] = 100 - data.cpu_usage;
+                    cpuChart.update();
+                    document.getElementById('cpu-usage').innerText = `CPU Usage: ${data.cpu_usage}%`;
+
+                    // Update Memory Chart
+                    memoryChart.data.datasets[0].data[0] = data.memory_usage;
+                    memoryChart.data.datasets[0].data[1] = 100 - data.memory_usage;
+                    memoryChart.update();
+                    document.getElementById('memory-usage').innerText = `Memory Usage: ${data.memory_usage}%`;
+
+                    // Update Temperature Chart
+                    tempChart.data.datasets[0].data[0] = data.temperature || 0;
+                    tempChart.data.datasets[0].data[1] = 100;
+                    tempChart.update();
+                    document.getElementById('temperature').innerText = `Temperature: ${data.temperature ? data.temperature.toFixed(1) + '°C' : 'N/A'}`;
+
+                    // Update Storage Chart
+                    storageChart.data.datasets[0].data[0] = data.storage_usage;
+                    storageChart.data.datasets[0].data[1] = 100 - data.storage_usage;
+                    storageChart.update();
+                    document.getElementById('storage-usage').innerText = `Storage Usage: ${data.storage_usage}%`;
+                })
+                .catch(error => console.error('Error fetching resources:', error));
+        }
+
+        setInterval(fetchResources, 5000); // Refresh every 5 seconds
+    </script>
+</body>
+</html>
