@@ -31,4 +31,4 @@ go to http://YOURIPHERE:5000/
 and you should see your temps ram usage and cpu usage
 this is VERY barebones so if you want to add anything you can, change what the title is in /templates/index.html and the icon for the tab in /static. add whatever you want lol
 
-this is just a local setup if you want a tutorial to view it anywhere I can help you out
+this is just a local setup for viewing on your home network
