@@ -1,6 +1,6 @@
 
 
-extremely basic web based pi resource monitor
+extremely basic web based pi resource monitor for raspberry pi os
 
 the temp monitor works i was just using a virtual machine in this screenshot
 
