@@ -21,5 +21,5 @@ def resources():
     return jsonify(cpu_usage=cpu_usage, memory_usage=memory_usage, temperature=temperature, storage_usage=storage_usage)
 
 if __name__ == '__main__':
-    app.run(host='192.168.17.135', port=5000, debug=True)
+    app.run(host='YOURIPHERE', port=5000, debug=True)
 
